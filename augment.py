@@ -7,11 +7,13 @@
 import os
 import re
 import random
+import pyiwn
 
 HINDI_FULL_PATH = '/parallel/IITB.en-hi.hi'
 HINDI_SUBSET_PATH = '/IITB.en-hi-100k.hi'
 HINDI_RANDOM_SWAP_PATH = '/IITB.en-hi-100k-random-swap.hi'
 HINDI_RANDOM_DELETE_PATH = '/IITB.en-hi-100k-random-delete.hi'
+HINDI_RANDOM_INSERT_PATH = '/IITB.en-hi-100k-random-insert.hi'
 SIZE_SUBSET = 100000
 
 
@@ -90,9 +92,64 @@ def swap(new_words):
 	new_words[random_idx_1], new_words[random_idx_2] = new_words[random_idx_2], new_words[random_idx_1] 
 	return new_words
 
+def random_insertion(n):
+    f = open(os.getcwd()+HINDI_RANDOM_INSERT_PATH, 'w',newline='')
+    iwn = pyiwn.IndoWordNet()
+    with open(os.getcwd()+HINDI_SUBSET_PATH) as file_in:
+        for line in file_in:
+            if len(line.strip())>0:
+                sentence = sanitize(line.strip())
+                words = sentence.split(' ')
+                words = [word for word in words if word != '']
+                num_words = len(words)
+                            
+                new_words = words.copy()
+                for _ in range(n):
+                    insert_word(new_words,iwn)
+                
+                f.write(' '.join(words)+'\n')
+            
+    f.close()
+    
+def insert_word(new_words, indoWordNet):
+    synonyms = []
+    counter = 0
+    while len(synonyms) < 1:
+        random_word = new_words[random.randint(0, len(new_words)-1)]
+        synonyms = get_synonyms(random_word,indoWordNet)
+        counter+=1
+        if counter >=10:
+            return
+    
+    random_synonym = synonyms[0]
+    random_idx = random.randint(0, len(new_words)-1)
+    new_words.insert(random_idx, random_synonym)
+
+def get_synonyms(word,indoWordNet):
+    synonyms = set()
+    try:
+        synsets = indoWordNet.synsets(word)
+        if len(synsets) < 1:
+            return []
+    
+        #print(synsets)
+        for syn in synsets:
+            for l in syn.lemma_names(): 
+                synonym = l.replace("_", " ").replace("-", " ")
+                synonyms.add(synonym) 
+	
+        if word in synonyms:
+            synonyms.remove(word)
+    
+        return list(synonyms)
+    except KeyError:
+        return []
+    
+
 def augment():
     random_swap(1)
     random_deletion(0.1)
+    random_insertion(1)
 
 def main():
     # select a subset of data and write to a file
