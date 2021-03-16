@@ -16,7 +16,7 @@ Dataset used - IIT Bombay English-Hindi Corpus (Anoop Kunchukuttan, 2018)
 
 Sentence generation
 
-The IIT Bombay English-Hindi corpus contains 1.6M sentences in the training set. We randomly took subsets of 100k, 500k, and 1M sentences and applied each of the four editing techniques five times per sentence to generate 500k, 2.5Mvand 5M augmented sentences per technique.
+The IIT Bombay English-Hindi corpus contains 1.6M sentences in the training set. We randomly took subsets of 100k, 500k, and 1M sentences and applied each of the four editing techniques five times per sentence to generate 500k, 2.5M and 5M augmented sentences per technique.
 
 Libraries
 
@@ -38,3 +38,4 @@ HINDI_FULL_PATH = '/parallel/IITB.en-hi.hi'
 
 ENGLISH_FULL_PATH = '/parallel/IITB.en-hi.en'
 
+Similarly, augmented data can be generated for SR. The augmented data can then be used to train XLM models and check results for improvement in NMT task.
